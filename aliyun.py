@@ -2,8 +2,9 @@
 # -*- coding: UTF-8 -*-
 from urllib import request, parse
 import hmac, datetime, uuid, base64
-import json, os, logging
+import json, os, logging, socket
 import logger
+import ipaddress
 
 
 Headers = {
@@ -25,6 +26,28 @@ class Aliyun():
         self.access_key_id = access_key_id
         self.access_key_secret = access_key_secret
 
+    def init_domain(self, domain_name):
+        if not self.check_domain_exists(domain_name):
+            self.create_domain(domain_name)
+    
+    def ddns(self, domain_name, ip, sub_domains):
+        if ip is None or ip == '':
+            raise Exception("Empty ip.")
+        ipv6 = (ipaddress.ip_address(ip).version == 6)
+        if ipv6 and socket.has_dualstack_ipv6 == False:
+            raise Exception("Local machine has not ipv6.")
+        if type(sub_domains) is not list:
+            sub_domains = [sub_domains]
+        
+        record_type = 'AAAA' if ipv6 else 'A'
+        for sub_domain in sub_domains:
+            record_value = self.get_record_value(domain_name, sub_domain, record_type)
+            if record_value == 0:
+                self.add_record(domain_name, sub_domain, record_type, ip)
+            elif record_value != ip:
+                logging.info(f"Begin update [{sub_domain}.{domain_name}].")
+                record_id = self.get_record_id(domain_name, sub_domain, record_type)
+                self.record_ddns(record_id, sub_domain, record_type, ip)
 
 
     def check_domain_exists(self, domain_name):
