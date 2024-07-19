@@ -34,6 +34,8 @@ def requires_auth(f):
 @app.route('/<subdomain>', methods=['GET'])
 @requires_auth
 def set_ip(sub_domain):
+    if not sub_domain.isalnum(): return jsonify({"message": "Server is down."}), 500
+    sub_domain = sub_domain.lower()
     client_ip = request.remote_addr
     aliyun_client.init_domain(conf['listen']['name'])
     aliyun_client.ddns(conf['listen']['name'], client_ip, sub_domain)
