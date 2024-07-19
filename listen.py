@@ -11,6 +11,7 @@ aliyun_client = Aliyun(conf['access_key'], conf['access_secret'])
 
 def check_auth(auth):
     try:
+        logging.info(f"Auth={auth}, Username={auth.username}, Password={auth.password}")
         return (auth.username == conf['listen']['username'] and 
                 auth.password == conf['listen']['password'])
     except:
