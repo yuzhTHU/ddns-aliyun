@@ -2,15 +2,10 @@ import json
 import logging.config
 import os
 
-def setup_logging(default_path = "logging.json",default_level = logging.INFO,env_key = "LOG_CFG"):
-    path = default_path
-    value = os.getenv(env_key,None)
-    if value:
-        path = value
+def setup_logging(default_path="logging.json",default_level=logging.INFO,env_key="LOG_CFG"):
+    path = os.getenv(env_key,None) or default_path
     if os.path.exists(path):
-        with open(path,"r") as f:
-            config = json.load(f)
-            logging.config.dictConfig(config)
+        logging.config.dictConfig(json.load(open(path,"r")))
     else:
         logging.basicConfig(level = default_level)
 

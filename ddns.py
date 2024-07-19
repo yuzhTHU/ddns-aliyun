@@ -3,29 +3,23 @@
 import json, os, logging, socket
 import aliyun
 import logger
-import ipv4, ipv6
+from ipv4 import IPV4
+from ipv6 import IPV6
 
-global LocalIPV4
-LocalIPV4 = ''
 
-global LocalIPV6
-LocalIPV6 = ''
-
-def init_domain(aliyun_client, domain):
-    domain_exists = aliyun_client.check_domain_exists(domain['name'])
-    if domain_exists == False:
+def init_domain(aliyun_client:aliyun.Aliyun, domain:dict):
+    if not aliyun_client.check_domain_exists(domain['name']):
         aliyun_client.create_domain(domain['name'])
 
 
-def ddns(aliyun_client, domain):
-    record_type = 'AAAA' if domain.__contains__('ipv6') and domain['ipv6'] else 'A'
+def ddns(aliyun_client:aliyun.Aliyun, domain:dict):
+    record_type = 'AAAA' if domain.get('ipv6', False) else 'A'
     if record_type == 'AAAA' and socket.has_dualstack_ipv6 == False:
         logging.error(f"Local machine has not ipv6.")
         return
     
     ip = get_locat_ip(domain)
-    if ip is None or ip == '':
-        return
+    if ip is None or ip == '': return
     
     for sub_domain in domain['sub_domains']:
         record_value = aliyun_client.get_record_value(domain['name'], sub_domain, record_type)
@@ -38,26 +32,28 @@ def ddns(aliyun_client, domain):
 
 
 def get_locat_ip(domain):
-    if domain.__contains__('ipv6') and domain['ipv6']:
+    if domain.get('ipv6', False):
         return get_ipv6()
     else:
         return get_ipv4()
 
 
+global IPv4_cache
+IPv4_cache = ''
 def get_ipv4():
-    global LocalIPV4
-    if LocalIPV4.strip() == '':
-        v4 = ipv4.IPV4()
-        LocalIPV4 = v4.get_local_ip()
-    return LocalIPV4
+    global IPv4_cache
+    if IPv4_cache.strip() == '':
+        IPv4_cache = IPV4().get_local_ip()
+    return IPv4_cache
 
 
+global IPv6_cache
+IPv6_cache = ''
 def get_ipv6():
-    global LocalIPV6
-    if LocalIPV6.strip() == '':
-        v6 = ipv6.IPV6()
-        LocalIPV6 = v6.get_local_ip()
-    return LocalIPV6
+    global IPv6_cache
+    if IPv6_cache.strip() == '':
+        IPv6_cache = IPV6().get_local_ip()
+    return IPv6_cache
 
 
 if __name__ == '__main__':
