@@ -3,6 +3,6 @@
 import ipv4
 
 class Ident(ipv4.IPV4):
-    def get_ip(ipDict):
+    def get_ip():
         ident = ipv4.request.urlopen('https://ident.me').read().decode('utf-8')
-        ipDict[ident] = ipDict.setdefault(ident, 0) + 1
+        return ident

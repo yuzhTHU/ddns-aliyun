@@ -26,7 +26,9 @@ class IPV4(object):
         ipDict = dict()
         for chi in IPV4.__subclasses__():
             try:
-                chi.get_ip(ipDict)
+                ip = chi.get_ip()
+                logging.info(f"[{chi.__name__}] Get local IP: {ip}")
+                ipDict[ip] = ipDict.setdefault(ip, 0) + 1
             except Exception as e:
                 logging.error(e)
                 pass

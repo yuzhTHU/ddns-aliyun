@@ -3,6 +3,6 @@
 import ipv4
 
 class JsonIp(ipv4.IPV4):
-    def get_ip(ipDict):
-        jsonip = ipv4.json.loads(ipv4.request.urlopen('http://jsonip.com').read().decode('utf-8'))['ip']
-        ipDict[jsonip] = ipDict.setdefault(jsonip, 0) + 1
+    def get_ip():
+        jsonip = ipv4.json.loads(ipv4.request.urlopen('http://ipv4.jsonip.com').read().decode('utf-8'))['ip']
+        return jsonip
