@@ -21,18 +21,14 @@ CommonParams = {
 }
 
 class Aliyun():
-    _access_key_id = ''
-    _access_key_secret = ''
-
     def __init__(self, access_key_id, access_key_secret):
-        global _access_key_id
-        global _access_key_secret
-        _access_key_id = access_key_id
-        _access_key_secret = access_key_secret
+        self.access_key_id = access_key_id
+        self.access_key_secret = access_key_secret
+
 
 
     def check_domain_exists(self, domain_name):
-        CommonParams['AccessKeyId'] = _access_key_id
+        CommonParams['AccessKeyId'] = self.access_key_id
         CommonParams['Action'] = 'DescribeDomainInfo'
         CommonParams['DomainName'] = domain_name
         try:
@@ -44,7 +40,7 @@ class Aliyun():
 
 
     def create_domain(self, domain_name):
-        CommonParams['AccessKeyId'] = _access_key_id
+        CommonParams['AccessKeyId'] = self.access_key_id
         CommonParams['Action'] = 'AddDomain'
         CommonParams['DomainName'] = domain_name
         try:
@@ -55,7 +51,7 @@ class Aliyun():
 
 
     def get_record_value(self, domain_name, sub_domain, record_type):
-        CommonParams['AccessKeyId'] = _access_key_id
+        CommonParams['AccessKeyId'] = self.access_key_id
         CommonParams['Action'] = 'DescribeDomainRecords'
         CommonParams['DomainName'] = domain_name
         try:
@@ -72,7 +68,7 @@ class Aliyun():
 
 
     def get_record_id(self, domain_name, sub_domain, record_type):
-        CommonParams['AccessKeyId'] = _access_key_id
+        CommonParams['AccessKeyId'] = self.access_key_id
         CommonParams['Action'] = 'DescribeDomainRecords'
         CommonParams['DomainName'] = domain_name
         try:
@@ -88,7 +84,7 @@ class Aliyun():
 
 
     def add_record(self, domain_name, sub_domain, record_type, localIP):
-        CommonParams['AccessKeyId'] = _access_key_id
+        CommonParams['AccessKeyId'] = self.access_key_id
         CommonParams['Action'] = 'AddDomainRecord'
         CommonParams['DomainName'] = domain_name
         CommonParams['RR'] = sub_domain
@@ -104,7 +100,7 @@ class Aliyun():
 
 
     def record_ddns(self, record_id, sub_domain, record_type, localIP):
-        CommonParams['AccessKeyId'] = _access_key_id
+        CommonParams['AccessKeyId'] = self.access_key_id
         CommonParams['Action'] = 'UpdateDomainRecord'
         CommonParams['RR'] = sub_domain
         CommonParams['RecordId'] = record_id
@@ -138,6 +134,6 @@ class Aliyun():
 
     def _sign(self, params):
         stringToSign = 'GET&%2F&' + parse.quote(parse.urlencode(params))
-        h = hmac.new((_access_key_secret+'&').encode('utf-8'), stringToSign.encode('utf-8'), digestmod='sha1').digest()
+        h = hmac.new((self.access_key_secret+'&').encode('utf-8'), stringToSign.encode('utf-8'), digestmod='sha1').digest()
         signature = base64.b64encode(h).decode('utf-8')
         return signature
