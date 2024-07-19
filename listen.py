@@ -3,6 +3,7 @@ from functools import wraps
 import logger
 import json, os, logging
 from aliyun import Aliyun
+import ssl
 
 app = Flask('Aliyun-DDNS')
 conf = json.load(open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "conf.json"), "r"))
@@ -42,4 +43,6 @@ def set_ip(sub_domain):
 
 if __name__ == '__main__':
     logger.setup_logging()
-    app.run(host='0.0.0.0', port=9010)
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+    context.load_cert_chain(certfile=conf['listen']['ssl_cert'], keyfile=conf['listen']['ssl_key'])
+    app.run(host='0.0.0.0', port=9010, ssl_context=context)
