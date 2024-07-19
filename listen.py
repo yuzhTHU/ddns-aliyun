@@ -19,7 +19,7 @@ def check_auth(auth):
 def authenticate():
     message = {'message': "Authenticate."}
     resp = jsonify(message)
-    resp.status_code = 500 # 401
+    resp.status_code = 401 # 否则在浏览器访问时不会提示“服务器需要验证”
     resp.headers['WWW-Authenticate'] = 'Basic realm="Example"'
     return resp
 
