@@ -40,8 +40,8 @@ def set_ip(sub_domain):
     client_ip = request.remote_addr
     aliyun_client.init_domain(conf['listen']['name'])
     aliyun_client.ddns(conf['listen']['name'], client_ip, sub_domain)
-    logging.info(f"Client IP: {client_ip}, Sub_domain: {sub_domain}")
-    return jsonify({"message": f"Received request for {sub_domain} from {client_ip}"}), 200
+    logging.info(f"{sub_domain}.{conf['listen']['name']} => {client_ip}")
+    return jsonify({"message": f"Hello {sub_domain}, your IP address is {client_ip}"}), 200
 
 
 if __name__ == '__main__':
