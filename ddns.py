@@ -7,20 +7,18 @@ from ipv4 import IPV4
 from ipv6 import IPV6
 
 global IPv4_cache
-IPv4_cache = ''
+IPv4_cache = None
 def get_ipv4():
     global IPv4_cache
-    if IPv4_cache.strip() == '':
-        IPv4_cache = IPV4().get_local_ip()
+    if not IPv4_cache: IPv4_cache = IPV4().get_local_ip()
     return IPv4_cache
 
 
 global IPv6_cache
-IPv6_cache = ''
+IPv6_cache = None
 def get_ipv6():
     global IPv6_cache
-    if IPv6_cache.strip() == '':
-        IPv6_cache = IPV6().get_local_ip()
+    if not IPv6_cache: IPv6_cache = IPV6().get_local_ip()
     return IPv6_cache
 
 
