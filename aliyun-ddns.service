@@ -8,6 +8,7 @@ WorkingDirectory=/srv/dev-disk-by-uuid-584b62c7-7f2d-48a1-aa0c-44ff11fc7139/Data
 User=yumeow
 Group=users
 Restart=always
+Environment="LOG_CFG=logging-NAS.json"
 
 [Install]
 WantedBy=multi-user.target

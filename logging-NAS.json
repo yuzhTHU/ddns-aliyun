@@ -1,0 +1,48 @@
+{
+    "version":1,
+    "disable_existing_loggers":false,
+    "formatters":{
+        "standard": {
+            "format": "%(asctime)s - %(threadName)s:%(thread)d - task_id:%(name)s - %(filename)s[line:%(lineno)d] - [%(levelname)s] %(message)s"
+        },
+        "simple": {
+            "format": "%(asctime)s - %(filename)s[line:%(lineno)d] - [%(levelname)s] %(message)s"
+        },
+        "id_simple_format": {
+            "format": "%(asctime)s - [%(levelname)s] %(message)s"
+        }
+    },
+    "handlers":{
+        "console":{
+            "class":"logging.StreamHandler",
+            "level":"DEBUG",
+            "formatter":"simple",
+            "stream":"ext://sys.stdout"
+        },
+        "info_file_handler":{
+            "class":"logging.handlers.RotatingFileHandler",
+            "level":"INFO",
+            "formatter":"id_simple_format",
+            "filename":"/var/log/users/aliyun-ddns-info.log",
+            "maxBytes": 10485760,
+            "backupCount":20,
+            "encoding":"utf-8"
+        },
+        "error_file_handler":{
+            "class":"logging.handlers.RotatingFileHandler",
+            "level":"ERROR",
+            "formatter":"simple",
+            "filename":"/var/log/users/aliyun-ddns-errors.log",
+            "maxBytes": 10485760,
+            "backupCount":20,
+            "encoding":"utf-8"
+        }
+    },
+    "loggers":{
+        "":{
+            "level": "DEBUG",
+            "handlers": ["console", "info_file_handler", "error_file_handler"],
+            "propagate": true
+        }
+    }
+}
