@@ -31,7 +31,7 @@ def requires_auth(f):
         return f(*args, **kwargs)
     return decorated
 
-@app.route('/<subdomain>', methods=['GET'])
+@app.route('/<sub_domain>', methods=['GET'])
 @requires_auth
 def set_ip(sub_domain):
     if not sub_domain.isalnum(): return jsonify({"message": "Server is down."}), 500
