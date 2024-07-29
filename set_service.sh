@@ -1,6 +1,22 @@
 #!/bin/bash
 
-cp aliyun-ddns.service /etc/systemd/system/
+cat <<EOL > /etc/systemd/system/aliyun-ddns.service
+[Unit]
+Description=Flask Server for Aliyun DDNS
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 $PWD/listen.py
+WorkingDirectory=$PWD
+User=$USER
+Group=$(id -gn)
+Restart=always
+Environment="LOG_CFG=logging-NAS.json"
+
+[Install]
+WantedBy=multi-user.target
+EOL
+
 systemctl daemon-reload
 systemctl start aliyun-ddns
 systemctl enable aliyun-ddns
