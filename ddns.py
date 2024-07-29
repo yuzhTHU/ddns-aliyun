@@ -26,7 +26,7 @@ if __name__ == '__main__':
     logger.setup_logging()
     conf = json.load(open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "conf.json"), "r"))
     aliyun_client = aliyun.Aliyun(conf['access_key'], conf['access_secret'])
-    for domain in conf['domains']:
+    for domain in conf['ddns']:
         try:
             ip = get_ipv4() if not domain.get('ipv6', False) else get_ipv6()
             aliyun_client.init_domain(domain['name'])
