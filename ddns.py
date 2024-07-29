@@ -1,10 +1,13 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
-import json, os, logging
+import os
+import json
+import logging
 import aliyun
-import logger
 from ipv4 import IPV4
 from ipv6 import IPV6
+from logger import setup_logging
+
 
 global IPv4_cache
 IPv4_cache = None
@@ -23,7 +26,7 @@ def get_ipv6():
 
 
 if __name__ == '__main__':
-    logger.setup_logging()
+    setup_logging()
     conf = json.load(open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "conf.json"), "r"))
     aliyun_client = aliyun.Aliyun(conf['access_key'], conf['access_secret'])
     for domain in conf['ddns']:
