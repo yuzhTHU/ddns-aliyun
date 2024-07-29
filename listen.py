@@ -54,6 +54,9 @@ def set_ip(sub_domain):
 
 if __name__ == '__main__':
     setup_logging()
-    context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-    context.load_cert_chain(certfile=conf['listen']['ssl_cert'], keyfile=conf['listen']['ssl_key'])
-    app.run(host='0.0.0.0', port=9010, ssl_context=context)
+    if 'ssl_cert' in conf['listen']:
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+        context.load_cert_chain(certfile=conf['listen']['ssl_cert'], keyfile=conf['listen']['ssl_key'])
+        app.run(host='0.0.0.0', port=9010, ssl_context=context)
+    else:
+        app.run(host='0.0.0.0', port=9010)
