@@ -28,23 +28,21 @@ class Aliyun():
 
     
     def ddns(self, domain_name, ip, sub_domains):
-        if ip is None or ip == '':
-            raise Exception("Empty ip.")
-        ipv6 = (ipaddress.ip_address(ip).version == 6)
-        if ipv6 and socket.has_dualstack_ipv6 == False:
-            raise Exception("Local machine has not ipv6.")
+        assert self.check_domain_exists(domain_name), f"Domain [{domain_name}] not exists."
+        assert ip is not None and ip != '', "IP address is empty."
+        assert socket.has_dualstack_ipv6 or (ipaddress.ip_address(ip).version != 6), "Local machine has not ipv6."
         if type(sub_domains) is not list:
             sub_domains = [sub_domains]
         
-        record_type = 'AAAA' if ipv6 else 'A'
+        record_type = 'AAAA' if (ipaddress.ip_address(ip).version == 6) else 'A'
         for sub_domain in sub_domains:
             record_value = self.get_record_value(domain_name, sub_domain, record_type)
-            if record_value == 0:
+            if record_value is None:
+                logging.info(f"Begin add [{sub_domain}.{domain_name}] as [{ip}].")
                 self.add_record(domain_name, sub_domain, record_type, ip)
             elif record_value != ip:
-                logging.info(f"Begin update [{sub_domain}.{domain_name}].")
-                record_id = self.get_record_id(domain_name, sub_domain, record_type)
-                self.record_ddns(record_id, sub_domain, record_type, ip)
+                logging.info(f"Begin update [{sub_domain}.{domain_name}] from [{record_value}] to [{ip}].")
+                self.update_record(domain_name, sub_domain, record_type, ip)
 
 
     def check_domain_exists(self, domain_name):
@@ -68,12 +66,12 @@ class Aliyun():
             records = data['DomainRecords']['Record']
             for record in records:
                 if record['Type'] == record_type and record['RR'] == sub_domain:
-                    logging.info(f"Sub_Domain [{sub_domain}] hostIP is {record['Value']}")
+                    logging.debug(f"Sub_Domain [{sub_domain}] hostIP is {record['Value']}")
                     return record['Value']
-            return 0
+            return None
         except Exception as e:
             logging.error(e)
-            return 0
+            raise Exception("Get record value failed.")
 
 
     def get_record_id(self, domain_name, sub_domain, record_type):
@@ -85,11 +83,12 @@ class Aliyun():
             records = data['DomainRecords']['Record']
             for record in records:
                 if record['Type'] == record_type and record['RR'] == sub_domain:
+                    logging.debug(f"Sub_Domain [{sub_domain}] recordID is {record['RecordId']}")
                     return record['RecordId']
-            return 0
+            return None
         except Exception as e:
             logging.error(e)
-            return 0
+            raise Exception("Get record id failed.")
 
 
     def add_record(self, domain_name, sub_domain, record_type, localIP):
@@ -105,10 +104,11 @@ class Aliyun():
             return data['RecordId']
         except Exception as e:
             logging.error(e)
-            return 0
+            raise Exception("Add record failed.")
 
 
-    def record_ddns(self, record_id, sub_domain, record_type, localIP):
+    def update_record(self, domain_name, sub_domain, record_type, localIP):
+        record_id = self.get_record_id(domain_name, sub_domain, record_type)
         CommonParams['AccessKeyId'] = self.access_key_id
         CommonParams['Action'] = 'UpdateDomainRecord'
         CommonParams['RR'] = sub_domain
@@ -121,7 +121,7 @@ class Aliyun():
             return data['RecordId']
         except Exception as e:
             logging.error(e)
-            return 0
+            raise Exception("Update record failed.")
 
 
     def _get_response_data(self, params):
@@ -129,16 +129,14 @@ class Aliyun():
         params = self._sort_dict(params)
 
         params['Signature'] = self._sign(params)
+        print(params)
         req = request.Request(url=f'https://alidns.aliyuncs.com/?{parse.urlencode(params)}', headers=Headers, method='GET')
         response = request.urlopen(req)
         return json.loads(response.read().decode('utf-8'))
 
 
     def _sort_dict(self, dic):
-        result = {}
-        for key in sorted(dic.keys()):
-            result[key] = dic[key]
-        return result
+        return {key: dic[key] for key in sorted(dic.keys())}
 
 
     def _sign(self, params):
