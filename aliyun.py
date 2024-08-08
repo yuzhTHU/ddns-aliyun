@@ -26,9 +26,6 @@ class Aliyun():
         self.access_key_id = access_key_id
         self.access_key_secret = access_key_secret
 
-    def init_domain(self, domain_name):
-        if not self.check_domain_exists(domain_name):
-            self.create_domain(domain_name)
     
     def ddns(self, domain_name, ip, sub_domains):
         if ip is None or ip == '':
@@ -60,17 +57,6 @@ class Aliyun():
         except Exception as e:
             logging.error(e)
             return False
-
-
-    def create_domain(self, domain_name):
-        CommonParams['AccessKeyId'] = self.access_key_id
-        CommonParams['Action'] = 'AddDomain'
-        CommonParams['DomainName'] = domain_name
-        try:
-            self._get_response_data(CommonParams)
-        except Exception as e:
-            logging.error(e)
-            pass
 
 
     def get_record_value(self, domain_name, sub_domain, record_type):

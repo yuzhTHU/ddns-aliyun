@@ -32,7 +32,6 @@ if __name__ == '__main__':
     for domain in conf['ddns']:
         try:
             ip = get_ipv4() if not domain.get('ipv6', False) else get_ipv6()
-            aliyun_client.init_domain(domain['name'])
             aliyun_client.ddns(domain['name'], ip, domain['sub_domains'])
         except Exception as e:
             logging.error(e)
