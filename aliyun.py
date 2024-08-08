@@ -31,7 +31,6 @@ class Aliyun():
     def ddns(self, domain_name, ip, sub_domains):
         assert self.check_domain_exists(domain_name), f"Domain [{domain_name}] not exists."
         assert ip is not None and ip != '', "IP address is empty."
-        assert socket.has_dualstack_ipv6 or (ipaddress.ip_address(ip).version != 6), "Local machine has not ipv6."
         if type(sub_domains) is not list:
             sub_domains = [sub_domains]
         
@@ -41,8 +40,8 @@ class Aliyun():
             if record is None:
                 logging.info(f"Begin add [{sub_domain}.{domain_name}] as [{ip}].")
                 self.add_record(domain_name, sub_domain, record_type, ip)
-            elif record['value'] != ip:
-                logging.info(f"Begin update [{sub_domain}.{domain_name}] from [{record['value']}] to [{ip}].")
+            elif record['Value'] != ip:
+                logging.info(f"Begin update [{sub_domain}.{domain_name}] from [{record['Value']}] to [{ip}].")
                 self.update_record(domain_name, sub_domain, record_type, ip, record['RecordId'])
 
 
