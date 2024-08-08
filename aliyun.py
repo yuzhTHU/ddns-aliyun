@@ -37,13 +37,13 @@ class Aliyun():
         
         record_type = 'AAAA' if (ipaddress.ip_address(ip).version == 6) else 'A'
         for sub_domain in sub_domains:
-            record_value = self.get_record_value(domain_name, sub_domain, record_type)
-            if record_value is None:
+            record = self.get_record(domain_name, sub_domain, record_type)
+            if record is None:
                 logging.info(f"Begin add [{sub_domain}.{domain_name}] as [{ip}].")
                 self.add_record(domain_name, sub_domain, record_type, ip)
-            elif record_value != ip:
-                logging.info(f"Begin update [{sub_domain}.{domain_name}] from [{record_value}] to [{ip}].")
-                self.update_record(domain_name, sub_domain, record_type, ip)
+            elif record['value'] != ip:
+                logging.info(f"Begin update [{sub_domain}.{domain_name}] from [{record['value']}] to [{ip}].")
+                self.update_record(domain_name, sub_domain, record_type, ip, record['RecordId'])
 
 
     def check_domain_exists(self, domain_name):
@@ -55,32 +55,22 @@ class Aliyun():
             return False
 
 
-    def get_record_value(self, domain_name, sub_domain, record_type):
+    def get_record(self, domain_name, sub_domain, record_type):
         try:
-            data = self._get_response_data(Action='DescribeDomainRecords', DomainName=domain_name, **self.params)
-            records = data['DomainRecords']['Record']
-            for record in records:
-                if record['Type'] == record_type and record['RR'] == sub_domain:
-                    logging.debug(f"Sub_Domain [{sub_domain}] hostIP is {record['Value']}")
-                    return record['Value']
+            page_number = 1
+            total_number = 1
+            while page_number <= total_number:
+                data = self._get_response_data(Action='DescribeDomainRecords', DomainName=domain_name, PageSize=100, PageNumber=1, **self.params)
+                records = data['DomainRecords']['Record']
+                for record in records:
+                    if record['Type'] == record_type and record['RR'] == sub_domain:
+                        return record
+                page_number += 1
+                total_number = data['TotalCount'] // data['PageSize'] + 1
             return None
         except Exception as e:
             logging.error(e)
-            raise Exception("Get record value failed.")
-
-
-    def get_record_id(self, domain_name, sub_domain, record_type):
-        try:
-            data = self._get_response_data(Action='DescribeDomainRecords', DomainName=domain_name, **self.params)
-            records = data['DomainRecords']['Record']
-            for record in records:
-                if record['Type'] == record_type and record['RR'] == sub_domain:
-                    logging.debug(f"Sub_Domain [{sub_domain}] recordID is {record['RecordId']}")
-                    return record['RecordId']
-            return None
-        except Exception as e:
-            logging.error(e)
-            raise Exception("Get record id failed.")
+            raise Exception("Get record failed.")
 
 
     def add_record(self, domain_name, sub_domain, record_type, localIP):
@@ -92,8 +82,7 @@ class Aliyun():
             raise Exception("Add record failed.")
 
 
-    def update_record(self, domain_name, sub_domain, record_type, localIP):
-        record_id = self.get_record_id(domain_name, sub_domain, record_type)
+    def update_record(self, domain_name, sub_domain, record_type, localIP, record_id):
         try:
             data = self._get_response_data(Action='UpdateDomainRecord', RR=sub_domain, RecordId=record_id, Type=record_type, Value=localIP, **self.params)
             return data['RecordId']
@@ -105,7 +94,6 @@ class Aliyun():
     def _get_response_data(self, **params):
         params['SignatureNonce'] = uuid.uuid1()
         params = self._sort_dict(params)
-
         params['Signature'] = self._sign(params)
         req = request.Request(url=f'https://alidns.aliyuncs.com/?{parse.urlencode(params)}', headers=Headers, method='GET')
         response = request.urlopen(req)
