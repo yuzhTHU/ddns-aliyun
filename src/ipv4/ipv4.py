@@ -46,7 +46,7 @@ class IPV4(ABC):
                 ip_list = None
 
         if not use_parallel or ip_list is None:
-            results = [subclass().get_ip() for subclass in subclasses]
+            results = [fetch_ip(subclass) for subclass in subclasses]
             ip_list = [ip for ip in results if ip is not None]
 
         if len(ip_list) == 0:

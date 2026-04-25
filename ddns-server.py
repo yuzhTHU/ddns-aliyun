@@ -73,7 +73,7 @@ if __name__ == '__main__':
     parser = ArgumentParser(description="Aliyun DDNS Server")
     parser.add_argument('--domain_name', help='Domain name to update', default='yumeow.site')
     parser.add_argument('--listen', help='Host to listen on', default='0.0.0.0')
-    parser.add_argument('--port', help='Port to listen on', default=19250, type=int)
+    parser.add_argument('--port', help='Port to listen on', default=3250, type=int)
     parser.add_argument('--ssl_cert', help='Path to SSL certificate file', default='ssl/ddns.crt')
     parser.add_argument('--ssl_key', help='Path to SSL key file', default='ssl/ddns.key')
     parser.add_argument('--debug', action='store_true', help='Enable debug logging')
