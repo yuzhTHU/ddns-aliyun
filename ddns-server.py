@@ -43,6 +43,7 @@ def check_valid(sub_domain: str) -> bool:
 
 @app.get("/update/{sub_domain}")
 def set_ip(sub_domain: str, request: Request, credentials: HTTPBasicCredentials = Depends(authenticate)):
+    _logger.debug(f"Received update request for sub_domain={sub_domain} from {request.client.host}")
     if not check_valid(sub_domain):
         return JSONResponse(content={"message": "Server is down."}, status_code=500)
     sub_domain = sub_domain.lower()
