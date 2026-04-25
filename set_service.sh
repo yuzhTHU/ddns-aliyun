@@ -2,7 +2,7 @@
 
 cat <<EOL > /etc/systemd/system/aliyun-ddns.service
 [Unit]
-Description=Flask Server for Aliyun DDNS
+Description=FastAPI Server for Aliyun DDNS
 After=network.target
 
 [Service]

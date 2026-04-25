@@ -1,0 +1,1 @@
+python3 ddns-update.py --sub_domains nas @ \* \*.nas ddns --parallel
